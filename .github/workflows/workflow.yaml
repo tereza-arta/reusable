@@ -38,6 +38,7 @@ jobs:
         with:
           host: github.com
           private-key: ${{ secrets.PRIV_KEY }}
+          private-key-name: github
           
       - name: Clone repository
         run: git clone git@github.com:tereza-arta/manifest-for-yq.git
