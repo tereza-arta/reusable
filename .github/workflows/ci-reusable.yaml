@@ -1,0 +1,37 @@
+name: Reusable for CI
+
+on:
+  workflow_call:
+    inputs:
+      image:
+        required: true
+        type: string
+      app_component:
+        required: true
+        type: string
+    secrets:
+      docker_psw:
+        required: true
+
+jobs:
+  Image_build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set short git commit SHA
+        id  : vars
+        run : |
+          calculatedSha=$(git rev-parse --short ${{ github.sha }})
+          echo "SHORT_SHA=$calculatedSha" >> $GITHUB_ENV
+
+      - name: Build of docker image
+        run : |
+          docker build -t terezabisharyan/${{inputs.image}}:${{env.SHORT_SHA}} ./${{inputs.app_component}}/
+
+      - name: Push image on DockerHub
+        run : |
+          docker login -u terezabisharyan -p ${{ secrets.docker_psw}}
+          docker push terezabisharyan/${{inputs.image}}:${{env.SHORT_SHA}}
