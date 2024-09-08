@@ -3,6 +3,12 @@ name: Reusable for CD
 on:
   workflow_call:
     inputs:
+      image:
+        required: true
+        type: string
+      #commit_sha:
+        #required: true
+        #type: string
       path:
         required: true
         type: string
@@ -23,6 +29,12 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
+
+      - name: Set short git commit SHA
+        id  : vars
+        run : |
+          calculatedSha=$(git rev-parse --short ${{ github.sha }})
+          echo "SHORT_SHA_OTHER=$calculatedSha" >> $GITHUB_ENV  
 
       - name: Set up Git
         run: |
@@ -50,7 +62,7 @@ jobs:
       - name: Update YAML file with yq
         working-directory: k8s-manifests
         run: |
-          yq '.spec.template.spec.containers.[0].image = "terezabisharyan/kubia:${{ env.SHORT_SHA }}"' -i ${{inputs.path}}/${{inputs.filename}}
+          yq '.spec.template.spec.containers.[0].image = "terezabisharyan/${{inputs.image}}:${{env.SHORT_SHA_OTHER}}"' -i ${{inputs.path}}/${{inputs.filename}}
 
       - name: Commit and Push Changes
         working-directory: k8s-manifests
