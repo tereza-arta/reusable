@@ -1,4 +1,4 @@
-name: Reusable workflow
+name: Reusable for CD
 
 on:
   workflow_call:
@@ -24,12 +24,6 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Set short git commit SHA
-        id: vars
-        run: |
-          calculatedSha=$(git rev-parse --short ${{ github.sha }})
-          echo "SHORT_SHA=$calculatedSha" >> $GITHUB_ENV
-
       - name: Set up Git
         run: |
           git config --global user.name 'Tereza'
@@ -46,9 +40,7 @@ jobs:
           private-key-name: github
           
       - name: Clone repository
-        run: git clone git@github.com:tereza-arta/manifest-for-yq.git
-
-
+        run: git clone git@github.com:tereza-arta/k8s-manifests.git
 
       - name: Install yq
         run: |
@@ -56,12 +48,12 @@ jobs:
           sudo chmod +x /usr/local/bin/yq   
 
       - name: Update YAML file with yq
-        working-directory: manifest-for-yq
+        working-directory: k8s-manifests
         run: |
           yq '.spec.template.spec.containers.[0].image = "terezabisharyan/kubia:${{ env.SHORT_SHA }}"' -i ${{inputs.path}}/${{inputs.filename}}
 
       - name: Commit and Push Changes
-        working-directory: manifest-for-yq
+        working-directory: k8s-manifests
         env:
           GITHUB_TOKEN: ${{ secrets.dockerhub_token }}
         run: |
