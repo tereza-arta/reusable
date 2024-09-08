@@ -19,12 +19,12 @@ on:
         required: true
 
 jobs:
-  Change-image-tag:
+  Change-image-tag-and-deploy:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Set short git commit SHA
@@ -45,7 +45,7 @@ jobs:
           private-key: ${{ secrets.ssh_priv_key }}
           private-key-name: github
           
-      - name: Clone repository
+      - name: Clone target repository
         run: git clone git@github.com:tereza-arta/k8s-manifests.git
 
       - name: Install yq
