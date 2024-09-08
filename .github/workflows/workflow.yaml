@@ -9,6 +9,11 @@ on:
       filename:
         required: true
         type: string
+    secrets:
+      ssh_priv_key:
+        required: true
+      dockerhub_token:
+        required: true
 
 jobs:
   Change-image-tag:
@@ -37,7 +42,7 @@ jobs:
         uses: MrSquaare/ssh-setup-action@v1
         with:
           host: github.com
-          private-key: ${{ secrets.PRIV_KEY }}
+          private-key: ${{ secrets.ssh_priv_key }}
           private-key-name: github
           
       - name: Clone repository
@@ -58,7 +63,7 @@ jobs:
       - name: Commit and Push Changes
         working-directory: manifest-for-yq
         env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.dockerhub_token }}
         run: |
           git add ${{inputs.path}}/${{inputs.filename}}
           git commit -m "Update image in k8s deployment"
